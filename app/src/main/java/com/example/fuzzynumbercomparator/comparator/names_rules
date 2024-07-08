@@ -1,0 +1,4 @@
+coordinate - eg. x, y
+point - (x, y)
+segment line from (x1, y1) to (x2, y2)
+line - line that has two points (x1, y1), (x2, y2)
