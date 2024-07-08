@@ -354,8 +354,8 @@ internal fun ComparatorScreenPreview() {
             FuzzyNumberType.TRAPEZOID,
             values = listOf("0", "4", "4.5", "7")
         ),
-        firstFuzzyNumber = TriangleFuzzyNumber(1f, 3f, 5f),
-        secondFuzzyNumber = TrapezoidFuzzyNumber(0f, 4f, 4.5f, 7f),
+        firstFuzzyNumber = TriangleFuzzyNumber(1.0, 3.0, 5.0),
+        secondFuzzyNumber = TrapezoidFuzzyNumber(0.0, 4.0, 4.5, 7.0),
         isResultVisible = true,
         firstNumGreaterResultSimple = "0.453",
         secondNumGreaterResultSimple = "0.547",

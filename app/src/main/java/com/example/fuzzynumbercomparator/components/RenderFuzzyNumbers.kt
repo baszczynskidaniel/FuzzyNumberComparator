@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fuzzynumbercomparator.fuzzynumber.FuzzyNumber
 import com.example.fuzzynumbercomparator.fuzzynumber.LinearAlgebra
+import com.example.fuzzynumbercomparator.fuzzynumber.Point
 import com.example.fuzzynumbercomparator.fuzzynumber.TrapezoidFuzzyNumber
 import com.example.fuzzynumbercomparator.fuzzynumber.TriangleFuzzyNumber
 
@@ -52,8 +53,8 @@ fun RenderTwoFuzzyNumbers(
         val canvasProperties = CanvasProperties(
             this.size.width,
             this.size.height,
-            startDrawXCoordinate,
-            offset
+            startDrawXCoordinate.toFloat(),
+            offset.toFloat()
         )
 
         val firstNumberPoints =
@@ -133,7 +134,7 @@ data class CanvasProperties(
 )
 
 internal fun getPointsOffsetInCanvas(
-    points: List<PointF>,
+    points: List<Point<Double>>,
     properties: CanvasProperties
 ): List<Offset> {
     val offsets = mutableListOf<Offset>()
@@ -146,12 +147,12 @@ internal fun getPointsOffsetInCanvas(
 }
 
 fun getPointInCanvas(
-    point: PointF,
+    point: Point<Double>,
     properties: CanvasProperties
 ): Offset {
     val x = (point.x - properties.start) / properties.offset * properties.width
     val y =  -point.y * properties.height + properties.height
-    return Offset(x, y)
+    return Offset(x.toFloat(), y.toFloat())
 }
 
 
@@ -161,8 +162,8 @@ fun getPointInCanvas(
 fun RenderFuzzyNumberPreview(
 
 ) {
-    val secondNumber = TriangleFuzzyNumber(1f, 3f, 5f)
-    val firstNumber = TrapezoidFuzzyNumber(0f, 2f, 3f, 4f)
+    val secondNumber = TriangleFuzzyNumber(1.0, 3.0, 5.0)
+    val firstNumber = TrapezoidFuzzyNumber(0.0, 2.0, 3.0, 4.0)
 
     PreviewSurface(darkTheme = true, ) {
         RenderTwoFuzzyNumbers(

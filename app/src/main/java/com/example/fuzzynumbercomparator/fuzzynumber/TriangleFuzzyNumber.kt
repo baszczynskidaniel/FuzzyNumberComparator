@@ -8,9 +8,9 @@ import android.graphics.PointF
  * @param c end of fuzzy number must be greater than a
  */
 class TriangleFuzzyNumber(
-    val a: Float,
-    val b: Float,
-    val c: Float,
+    val a: Double,
+    val b: Double,
+    val c: Double,
 ): FuzzyNumber {
 
     init {
@@ -24,43 +24,44 @@ class TriangleFuzzyNumber(
     }
 
 
-    override fun getCoordinates(): List<Float> = listOf(a, b, c).distinct()
-    override fun totalArea(): Float = (c - a) * 0.5f
+    override fun getCoordinates(): List<Double> = listOf(a, b, c).distinct()
+    override fun totalArea(): Double = (c - a) * 0.5
 
-    override fun getPoints(): List<PointF> {
-        return listOf(PointF(a, 0f), PointF(b, 1f), PointF(c, 0f))
+    override fun getPoints(): List<Point<Double>> {
+        return listOf(Point(a, 0.0), Point(b, 1.0), Point(c, 0.0))
     }
 
-    override fun membership(x: Float): Float {
+    override fun membership(x: Double): Double {
         return when (x) {
-            b -> 1.0f
-            in a .. b -> 1.0f / (b - a) * x + a / (a - b)
-            in b .. c -> 1.0f / (b - c) * x + c / (c - b)
-            else -> 0.0f
+            b -> 1.0
+            in a .. b -> 1.0 / (b - a) * x + a / (a - b)
+            in b .. c -> 1.0 / (b - c) * x + c / (c - b)
+            else -> 0.0
         }
     }
 
-    override fun subArea(start: Float, end: Float): Float {
+    override fun subArea(start: Double, end: Double): Double {
         if(start >= end || start > c || end < a)
-            return 0.0f
+            return 0.0
 
-        var area = 0.0f
+        var area = 0.0
         var currentEnd = minOf(b, end)
         var currentStart = maxOf(a, start)
 
         if(currentStart <= b){
-            area += (membership(currentEnd) + membership(currentStart)) * (currentEnd - currentStart) / 2.0f
+
+            area += (membership(currentEnd) + membership(currentStart)) * (currentEnd - currentStart) / 2.0
         }
         currentStart = maxOf(b, start)
         currentEnd = minOf(c, end)
         if(currentEnd >= b){
-            area += (membership(currentEnd) + membership(currentStart)) * (currentEnd - currentStart) / 2.0f
+            area += (membership(currentEnd) + membership(currentStart)) * (currentEnd - currentStart) / 2.0
         }
         return area
     }
 
 
 
-    override fun getStart(): Float = a
-    override fun getEnd(): Float = c
+    override fun getStart(): Double = a
+    override fun getEnd(): Double = c
 }

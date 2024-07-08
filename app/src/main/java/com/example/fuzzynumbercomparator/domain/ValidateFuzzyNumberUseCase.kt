@@ -16,7 +16,7 @@ class ValidateFuzzyNumberUseCase: BaseUseCase<FuzzyNumberTextFieldValue, Validat
                 errorMessage = "The number can't be blank"
             )
         }
-        val values: List<Float?> = input.values.map { it.toFloatOrNull() }
+        val values: List<Double?> = input.values.map { it.toDoubleOrNull() }
 
         if(values.any {it == null}) {
             return ValidationResult(
@@ -27,7 +27,7 @@ class ValidateFuzzyNumberUseCase: BaseUseCase<FuzzyNumberTextFieldValue, Validat
 
         try {
             val factory = DefaultFuzzyNumberFactory()
-            factory.createFromFuzzyNumberTypeWithParams(input.type, values.map { it!!.toFloat() })
+            factory.createFromFuzzyNumberTypeWithParams(input.type, values.map { it!!.toDouble() })
         } catch (e: Exception) {
             return ValidationResult(
                 successful = false,

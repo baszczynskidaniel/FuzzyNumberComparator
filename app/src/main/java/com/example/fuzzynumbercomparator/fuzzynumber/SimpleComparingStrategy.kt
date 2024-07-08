@@ -1,12 +1,11 @@
 package com.example.fuzzynumbercomparator.fuzzynumber
 
 class SimpleComparingStrategy : ComparingStrategy {
-    override fun compare(firstNumber: FuzzyNumber, secondNumber: FuzzyNumber): Float {
+    override fun compare(firstNumber: FuzzyNumber, secondNumber: FuzzyNumber): Double {
         val xCoordinates = getDistinctSortedXCoordinates(firstNumber, secondNumber)
-        var totalAreaFirstNumberGreater = 0.0f
-        var totalAreaSecondNumberGreater = 0.0f
-        var totalEqualArea = 0.0f
-        var totalArea = 0f
+        var totalAreaFirstNumberGreater = 0.0
+        var totalAreaSecondNumberGreater = 0.0
+
         for (i in 0 until xCoordinates.size - 1) {
 
             val start = xCoordinates[i]
@@ -15,17 +14,17 @@ class SimpleComparingStrategy : ComparingStrategy {
             val secondSubArea = secondNumber.subArea(start, end)
 
             when {
-                secondSubArea == 0.0f && secondNumber.isBiggerThanValue(start) -> {
+                secondSubArea == 0.0 && secondNumber.isBiggerThanValue(start) -> {
                     totalAreaSecondNumberGreater += firstSubArea * 2
                 }
-                firstSubArea == 0.0f && !firstNumber.isBiggerThanValue(start) -> {
+                firstSubArea == 0.0 && !firstNumber.isBiggerThanValue(start) -> {
                     totalAreaSecondNumberGreater += secondSubArea * 2
                 }
 
-                secondSubArea == 0.0f && !secondNumber.isBiggerThanValue(start) -> {
+                secondSubArea == 0.0 && !secondNumber.isBiggerThanValue(start) -> {
                     totalAreaFirstNumberGreater += firstSubArea * 2
                 }
-                firstSubArea == 0.0f && firstNumber.isBiggerThanValue(start) -> {
+                firstSubArea == 0.0 && firstNumber.isBiggerThanValue(start) -> {
                     totalAreaFirstNumberGreater += secondSubArea * 2
                 }
 
@@ -59,7 +58,7 @@ class SimpleComparingStrategy : ComparingStrategy {
         return (totalAreaFirstNumberGreater + totalEqualArea) / totalArea
     }
 
-    private fun getDistinctSortedXCoordinates(firstNumber: FuzzyNumber, secondNumber: FuzzyNumber): List<Float> {
+    private fun getDistinctSortedXCoordinates(firstNumber: FuzzyNumber, secondNumber: FuzzyNumber): List<Double> {
         return (firstNumber.getCoordinates() + secondNumber.getCoordinates()).distinct().sorted()
     }
 }

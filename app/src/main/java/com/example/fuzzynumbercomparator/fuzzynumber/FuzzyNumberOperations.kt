@@ -14,7 +14,7 @@ class FuzzyNumberOperations {
     }
 
 
-    fun compare(firstNumber: FuzzyNumber, secondNumber: FuzzyNumber): Float {
+    fun compare(firstNumber: FuzzyNumber, secondNumber: FuzzyNumber): Double {
         return strategy.compare(firstNumber, secondNumber)
     }
 }

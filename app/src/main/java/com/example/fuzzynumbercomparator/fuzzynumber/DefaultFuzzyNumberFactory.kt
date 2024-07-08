@@ -3,7 +3,7 @@ package com.example.fuzzynumbercomparator.fuzzynumber
 class DefaultFuzzyNumberFactory: FuzzyNumberFactory {
     override fun createFromFuzzyNumberTypeWithParams(
         type: FuzzyNumberType,
-        params: List<Float>
+        params: List<Double>
     ): FuzzyNumber {
         when(type) {
             FuzzyNumberType.TRIANGLE -> {

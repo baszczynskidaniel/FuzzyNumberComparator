@@ -4,17 +4,17 @@ import android.graphics.PointF
 
 
 interface FuzzyNumber {
-    fun membership(x: Float): Float
-    fun subArea(start: Float, end: Float): Float
-    fun totalArea(): Float
+    fun membership(x: Double): Double
+    fun subArea(start: Double, end: Double): Double
+    fun totalArea(): Double
 
-    fun getCoordinates(): List<Float>
-    fun getPoints(): List<PointF>
-    fun getStart(): Float
-    fun getEnd(): Float
+    fun getCoordinates(): List<Double>
+    fun getPoints(): List<Point<Double>>
+    fun getStart(): Double
+    fun getEnd(): Double
 }
 
-fun FuzzyNumber.isBiggerThanValue(value: Float) = value < this.getStart()
-fun FuzzyNumber.isSmallerThanValue(value: Float) = value > this.getEnd()
+fun FuzzyNumber.isBiggerThanValue(value: Double) = value < this.getStart()
+fun FuzzyNumber.isSmallerThanValue(value: Double) = value > this.getEnd()
 
 

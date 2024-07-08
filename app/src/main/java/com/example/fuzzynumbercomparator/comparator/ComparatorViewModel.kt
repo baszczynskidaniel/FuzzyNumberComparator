@@ -144,9 +144,9 @@ class ComparatorViewModel(): ViewModel() {
 
         if(!hasError) {
             val factory = DefaultFuzzyNumberFactory()
-            val values1: List<Float> = _state.value.firstNumberState.values.map { it.toFloat() }
+            val values1: List<Double> = _state.value.firstNumberState.values.map { it.toDouble() }
             val firstFuzzyNumber = factory.createFromFuzzyNumberTypeWithParams(_state.value.firstNumberState.type, values1)
-            val values2: List<Float> = _state.value.secondNumberState.values.map { it.toFloat() }
+            val values2: List<Double> = _state.value.secondNumberState.values.map { it.toDouble() }
             val secondFuzzyNumber = factory.createFromFuzzyNumberTypeWithParams(_state.value.secondNumberState.type, values2)
 
 
@@ -158,15 +158,15 @@ class ComparatorViewModel(): ViewModel() {
             val firstNumberGreaterFMO = comparator.compare(firstFuzzyNumber, secondFuzzyNumber)
             val secondNumberGreaterFMO = comparator.compare(secondFuzzyNumber, firstFuzzyNumber)
 
-
+            val roundTo = 5
             _state.update { it.copy(
                 firstFuzzyNumber = firstFuzzyNumber,
                 secondFuzzyNumber = secondFuzzyNumber,
                 isResultVisible = true,
-                firstNumGreaterResultSimple = firstNumberGreaterSimple.toString(),
-                secondNumGreaterResultSimple = secondNumberGreaterSimple.toString(),
-                firstNumGreaterResultFMO = firstNumberGreaterFMO.toString(),
-                secondNumGreaterResultFMO = secondNumberGreaterFMO.toString()
+                firstNumGreaterResultSimple = String.format("%.${roundTo}f", firstNumberGreaterSimple),
+                secondNumGreaterResultSimple = String.format("%.${roundTo}f", secondNumberGreaterSimple),
+                firstNumGreaterResultFMO = String.format("%.${roundTo}f", firstNumberGreaterFMO),
+                secondNumGreaterResultFMO = String.format("%.${roundTo}f", secondNumberGreaterFMO)
             ) }
         } else {
             _state.update { it.copy(
