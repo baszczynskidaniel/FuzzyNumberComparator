@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -30,10 +31,14 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
+                        .navigationBarsPadding()
                 ) {
                     val viewModel by viewModels<ComparatorViewModel>()
                     val state = viewModel.state.collectAsState()
-                    ComparatorScreen(state = state.value, onEvent = viewModel::onEvent)
+                    ComparatorScreen(
+
+                        state = state.value, onEvent = viewModel::onEvent
+                    )
                 }
             }
         }

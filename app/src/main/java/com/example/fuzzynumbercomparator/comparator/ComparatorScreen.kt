@@ -3,6 +3,7 @@ package com.example.fuzzynumbercomparator.comparator
 import ComparatorUiState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,27 +17,51 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Label
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -130,6 +155,13 @@ fun ComparatorScreen(
             )
         }
 
+        ComparisonParameterSliders(
+            modifier = Modifier.padding(horizontal = SMALL_PADDING),
+            alpha = state.alpha,
+            beta = state.beta,
+            onAlphaChange = {onEvent(ComparatorEvent.OnAlphaChange(it))},
+            onBetaChange = {onEvent(ComparatorEvent.OnBetaChange(it))}
+        )
         AnimatedVisibility(state.isResultVisible) {
             Column {
                 if(state.firstFuzzyNumber != null && state.secondFuzzyNumber != null)
@@ -148,16 +180,7 @@ fun ComparatorScreen(
                     comparisonMethod = "Simple comparison",
 
                 )
-                Spacer(modifier = Modifier.height(SMALL_PADDING))
-                ComparisonResultCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = SMALL_PADDING),
-                    firstNumGreaterResult = state.firstNumGreaterResultFMO,
-                    secondNumGreaterResult = state.secondNumGreaterResultFMO,
-                    comparisonMethod = "Fuzzy max order",
 
-                    )
             }
         }
     }
@@ -282,6 +305,24 @@ private fun FuzzyNumberTextFields(
                 Spacer(modifier = Modifier.width(SMALL_PADDING))
                 //TODO add action done
                 SmallTextField(
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = MaterialTheme.colorScheme.primary,
+                        errorTextColor = MaterialTheme.colorScheme.primary,
+                        disabledTextColor = MaterialTheme.colorScheme.primary,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onBackground.copy(0.5f)
+
+                    ),
+                    textStyle = MaterialTheme.typography.headlineSmall.copy(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center,
+
+                    ),
+                    shape = RoundedCornerShape(MEDIUM_PADDING),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     value = value.values[index],
                     singleLine = true,
@@ -299,9 +340,6 @@ private fun FuzzyNumberTextFields(
                             textAlign = TextAlign.Center,
                             text = value.labels[index]
                         )
-                    },
-                    placeholder = {
-                        Text(text = value.placeholders[index])
                     },
                     modifier = Modifier.defaultMinSize(minWidth = 100.dp)
                 )
@@ -321,25 +359,24 @@ private fun NumberMenu(
     onDropDownMenuDismiss: (Boolean) -> Unit,
     onItemClick: (String) -> Unit
 ) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
+
+    ListItem(
+        headlineContent = { Text(
             text = label,
             color = MaterialTheme.colorScheme.onBackground
         )
-
-        FuzzyNumberDropDownMenu(
-            expanded = expanded,
-            onClick = { onTypeClick() },
-            text = selectedType,
-            onDismiss = {onDropDownMenuDismiss(it)} ,
-            items = FuzzyNumberType.toListOfStrings(),
-            onItemClick = {onItemClick(it)}
-        )
-    }
+        },
+        trailingContent = {
+            FuzzyNumberDropDownMenu(
+                expanded = expanded,
+                onClick = { onTypeClick() },
+                text = selectedType,
+                onDismiss = {onDropDownMenuDismiss(it)} ,
+                items = FuzzyNumberType.toListOfStrings(),
+                onItemClick = {onItemClick(it)}
+            )
+        }
+    )
 }
 
 @Preview
@@ -359,8 +396,6 @@ internal fun ComparatorScreenPreview() {
         isResultVisible = true,
         firstNumGreaterResultSimple = "0.453",
         secondNumGreaterResultSimple = "0.547",
-        firstNumGreaterResultFMO = "0.547",
-        secondNumGreaterResultFMO = "0.547"
 
     )
     fun onEvent(event: ComparatorEvent) {
@@ -427,6 +462,103 @@ internal fun ComparisonResultCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ComparisonParameterSliders(
+    modifier: Modifier = Modifier,
+    alpha: Float,
+    beta: Float,
+    onAlphaChange: (Float) -> Unit,
+    onBetaChange: (Float) -> Unit,
+) {
+    var alphaPosition by remember {
+        mutableFloatStateOf(
+           alpha
+        )
+    }
+    var betaPosition by remember {
+        mutableFloatStateOf(
+            beta
+        )
+    }
+   FNCElevatedCard(
+       modifier = modifier
+   ) {
+       ListItem(
+           headlineContent = { Text(text = "Alpha") },
+           supportingContent = { Text(text = "Multiplies area which part is bigger by this value")},
+           trailingContent = {
+               Box(
+                   modifier = Modifier
+                       .clip(RoundedCornerShape(MEDIUM_PADDING))
+                       .background(MaterialTheme.colorScheme.secondaryContainer)
+               ) {
+                   Text(modifier = Modifier.padding(SMALL_PADDING), text = String.format("%.2f", alpha), style = MaterialTheme.typography.headlineSmall)
+               }
+
+           }
+
+       )
+       Slider(
+           value = alphaPosition,
+           onValueChange = {
+
+               alphaPosition = it
+               onAlphaChange(alphaPosition)
+           },
+
+           valueRange = 0f..3f,
+           steps = 11,
+       )
+       ListItem(
+           headlineContent = { Text(text = "Beta") },
+           supportingContent = { Text(text = "Multiplies area which part is equal by this value")},
+           trailingContent = {
+               Box(
+                   modifier = Modifier
+                       .clip(RoundedCornerShape(MEDIUM_PADDING))
+                       .background(MaterialTheme.colorScheme.secondaryContainer)
+               ) {
+                   Text(modifier = Modifier.padding(SMALL_PADDING), text = String.format("%.2f", beta), style = MaterialTheme.typography.headlineSmall)
+               }
+
+           }
+
+       )
+       Slider(
+           value = betaPosition,
+           onValueChange = {
+               betaPosition = it
+               onBetaChange(betaPosition)
+
+           },
+
+           valueRange = 0f..3f,
+           steps = 11,
+       )
+   }
+}
+
+
+@Preview
+@Composable
+internal fun ComparisonParameterSlidersPreview() {
+    PreviewSurface(modifier = Modifier,
+        true, false
+    ) {
+
+        ComparisonParameterSliders(modifier = Modifier
+            .fillMaxWidth()
+            .padding(SMALL_PADDING),
+            alpha = 2.0f,
+            beta = 1.0f,
+            onAlphaChange = {},
+            onBetaChange = {}
+
+        )
+    }
+}
+
 @Preview
 @Composable
 internal fun ComparisonResultCardPreview() {
@@ -443,3 +575,26 @@ internal fun ComparisonResultCardPreview() {
         )
     }
 }
+@Composable
+
+@Preview
+@OptIn(ExperimentalMaterial3Api::class)
+    fun SliderWithCustomThumbSample() {
+        var sliderPosition by remember { mutableStateOf(0f) }
+        val interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Slider(
+
+                value = sliderPosition,
+                onValueChange = { sliderPosition = it },
+                valueRange = 0f..100f,
+                interactionSource = interactionSource,
+                onValueChangeFinished = {
+                    // launch some business logic update with the state you hold
+                    // viewModel.updateSelectedSliderValue(sliderPosition)
+                },
+
+            )
+        }
+    }
+

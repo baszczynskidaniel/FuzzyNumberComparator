@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.fuzzynumbercomparator.domain.ValidateFuzzyNumberUseCase
 import com.example.fuzzynumbercomparator.domain.ValidationResult
 import com.example.fuzzynumbercomparator.fuzzynumber.DefaultFuzzyNumberFactory
-import com.example.fuzzynumbercomparator.fuzzynumber.FuzzyMaxOrderComparingStrategy
+import com.example.fuzzynumbercomparator.fuzzynumber.FuzzyNumberOperations
 import com.example.fuzzynumbercomparator.fuzzynumber.FuzzyNumberType
 import com.example.fuzzynumbercomparator.fuzzynumber.SimpleComparingStrategy
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.update
 data class FuzzyNumberTextFieldValue(
     val type: FuzzyNumberType = FuzzyNumberType.TRIANGLE,
     val values: List<String> = defaultValuesForType(type),
-    val placeholders: List<String> = placeholdersForType(type),
     val labels: List<String> = labelsForType(type),
 )
 
@@ -29,16 +28,11 @@ internal fun defaultValuesForType(type: FuzzyNumberType): List<String> {
 
 internal fun labelsForType(type: FuzzyNumberType): List<String> {
     return when(type) {
-        FuzzyNumberType.TRIANGLE -> listOf("Start", "Peak", "End")
-        FuzzyNumberType.TRAPEZOID -> listOf("Start", "Start peak", "End peak", "End")
-    }
-}
-internal fun placeholdersForType(type: FuzzyNumberType): List<String> {
-    return when(type) {
         FuzzyNumberType.TRIANGLE -> listOf("A", "B", "C")
         FuzzyNumberType.TRAPEZOID -> listOf("A", "B", "C", "D")
     }
 }
+
 
 sealed class ComparatorEvent {
     data class FirstNumberChanged(val numberChange: FuzzyNumberTextFieldValue): ComparatorEvent()
@@ -49,6 +43,8 @@ sealed class ComparatorEvent {
     object OnDismissSecondNumberType: ComparatorEvent()
     data class OnFirstNumberTypeChange(val typeChange: String): ComparatorEvent()
     data class OnSecondNumberTypeChange(val typeChange: String): ComparatorEvent()
+    data class OnAlphaChange(val alphaChange: Float): ComparatorEvent()
+    data class OnBetaChange(val betaChange: Float): ComparatorEvent()
 
 }
 
@@ -57,6 +53,7 @@ class ComparatorViewModel(): ViewModel() {
     val state: StateFlow<ComparatorUiState> = _state
 
     private val validateFuzzyNumber = ValidateFuzzyNumberUseCase()
+    private val comparator = FuzzyNumberOperations(SimpleComparingStrategy(_state.value.alpha, _state.value.beta))
 
 
     fun onEvent(event: ComparatorEvent) {
@@ -100,7 +97,7 @@ class ComparatorViewModel(): ViewModel() {
                         firstNumberState = it.firstNumberState.copy(
                             type = newType,
                             values = defaultValuesForType(newType),
-                            placeholders = placeholdersForType(newType),
+
                             labels = labelsForType(newType)
                         )
                     )
@@ -119,7 +116,7 @@ class ComparatorViewModel(): ViewModel() {
                         secondNumberState = it.secondNumberState.copy(
                             type = newType,
                             values = defaultValuesForType(newType),
-                            placeholders = placeholdersForType(newType),
+
                             labels = labelsForType(newType)
                             )
                         )
@@ -127,7 +124,41 @@ class ComparatorViewModel(): ViewModel() {
                 }
                 validateFuzzyNumbers()
             }
+
+            is ComparatorEvent.OnAlphaChange -> {
+
+                _state.update { it.copy(
+                    alpha = event.alphaChange
+                    )
+                }
+                comparator.setStrategy(SimpleComparingStrategy(_state.value.alpha, _state.value.beta))
+                calculateComparison()
+
+            }
+            is ComparatorEvent.OnBetaChange -> {
+                _state.update { it.copy(
+                    beta = event.betaChange
+                )
+                }
+                comparator.setStrategy(SimpleComparingStrategy(_state.value.alpha, _state.value.beta))
+                calculateComparison()
+            }
         }
+    }
+
+    private fun calculateComparison() {
+        if(_state.value.firstFuzzyNumber == null || _state.value.secondFuzzyNumber == null)
+            return
+        val firstNumberGreaterResult = comparator.compare(_state.value.firstFuzzyNumber!!, _state.value.secondFuzzyNumber!!)
+        val secondNumberGreaterResult = comparator.compare(_state.value.secondFuzzyNumber!!, _state.value.firstFuzzyNumber!!)
+
+        val roundTo = 8
+
+        _state.update { it.copy(
+            isResultVisible = true,
+            firstNumGreaterResultSimple = String.format("%.${roundTo}f", firstNumberGreaterResult),
+            secondNumGreaterResultSimple = String.format("%.${roundTo}f", secondNumberGreaterResult),
+        ) }
     }
 
     private fun validateFuzzyNumbers() {
@@ -150,24 +181,15 @@ class ComparatorViewModel(): ViewModel() {
             val secondFuzzyNumber = factory.createFromFuzzyNumberTypeWithParams(_state.value.secondNumberState.type, values2)
 
 
-            val comparator =
-                com.example.fuzzynumbercomparator.fuzzynumber.FuzzyNumberOperations(SimpleComparingStrategy())
-            val firstNumberGreaterSimple = comparator.compare(firstFuzzyNumber, secondFuzzyNumber)
-            val secondNumberGreaterSimple = comparator.compare(secondFuzzyNumber, firstFuzzyNumber)
-            comparator.setStrategy(FuzzyMaxOrderComparingStrategy())
-            val firstNumberGreaterFMO = comparator.compare(firstFuzzyNumber, secondFuzzyNumber)
-            val secondNumberGreaterFMO = comparator.compare(secondFuzzyNumber, firstFuzzyNumber)
 
-            val roundTo = 5
+
             _state.update { it.copy(
                 firstFuzzyNumber = firstFuzzyNumber,
                 secondFuzzyNumber = secondFuzzyNumber,
                 isResultVisible = true,
-                firstNumGreaterResultSimple = String.format("%.${roundTo}f", firstNumberGreaterSimple),
-                secondNumGreaterResultSimple = String.format("%.${roundTo}f", secondNumberGreaterSimple),
-                firstNumGreaterResultFMO = String.format("%.${roundTo}f", firstNumberGreaterFMO),
-                secondNumGreaterResultFMO = String.format("%.${roundTo}f", secondNumberGreaterFMO)
-            ) }
+                )
+            }
+            calculateComparison()
         } else {
             _state.update { it.copy(
                 isResultVisible = false,

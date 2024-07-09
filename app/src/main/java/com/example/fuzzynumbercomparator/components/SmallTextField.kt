@@ -32,8 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -66,10 +68,12 @@ fun SmallTextField(
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = TextFieldDefaults.shape,
-    colors: TextFieldColors = TextFieldDefaults.colors()
+    colors: TextFieldColors = TextFieldDefaults.colors(),
+    cursorBrush: Brush = SolidColor(Color. Black),
 ) {
     Box() {
         BasicTextField(
+            cursorBrush = cursorBrush,
             maxLines = maxLines,
             minLines = minLines,
             keyboardActions = keyboardActions,
@@ -129,7 +133,7 @@ fun SmallTextField(
 private fun TextFieldListPreview() {
 
     data class uiState(
-        val values: List<String> = listOf("", "", ""),
+        val values: List<String> = listOf("value", "", ""),
         val labels: List<String> = listOf("A", "B", "C")
     )
 
@@ -138,7 +142,7 @@ private fun TextFieldListPreview() {
     }
 
     FuzzyNumberComparatorTheme(
-        false,
+        true,
         false
     ) {
 

@@ -1,12 +1,15 @@
 package com.example.fuzzynumbercomparator.fuzzynumber
 
 import android.graphics.PointF
+import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sqrt
 
 
 class LinearAlgebra {
     companion object {
+
+
         fun getLineSegments(number: FuzzyNumber): List<Pair<Point<Double>, Point<Double>>> {
             val pointCoordinates = mutableListOf<Pair<Point<Double>, Point<Double>>>()
             val points = number.getPoints()
@@ -15,6 +18,12 @@ class LinearAlgebra {
             }
             return pointCoordinates
         }
+
+        fun trapezoidArea(
+            a: Double,
+            b: Double,
+            h: Double,
+        ) = abs((a + b) * h / 2.0)
 
         fun areTwoLinesParallel(firstLine: Pair<Point<Double>, Point<Double>>, secondLine: Pair<Point<Double>, Point<Double>>): Boolean {
             val m1 = (firstLine.second.y - firstLine.first.y) / (firstLine.second.x - firstLine.first.x)

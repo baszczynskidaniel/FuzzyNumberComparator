@@ -13,8 +13,6 @@ class TrapezoidFuzzyNumber(
     val c: Double,
     val d: Double
 ): FuzzyNumber {
-
-
     init {
         if(a > b)
             throw IllegalArgumentException("a must be smaller or equal b")
@@ -48,8 +46,10 @@ class TrapezoidFuzzyNumber(
         }
     }
 
+
+
     override fun subArea(start: Double, end: Double): Double {
-        if(start >= end || start > c || end < a)
+        if(start >= end || start > d || end < a)
             return 0.0
 
         var area = 0.0
@@ -57,19 +57,36 @@ class TrapezoidFuzzyNumber(
         var currentStart = maxOf(a, start)
 
         if(currentStart <= b){
-            area += (membership(currentEnd) + membership(currentStart)) * (currentEnd - currentStart) / 2.0
-        }
-        currentStart = maxOf(b, start)
-        currentEnd = minOf(c, end)
-        if(currentEnd >= b){
-            area += (membership(currentEnd) + membership(currentStart)) * (currentEnd - currentStart) / 2.0
+            area += LinearAlgebra.trapezoidArea(
+                a = membership(currentEnd),
+                b = membership(currentStart),
+                h = currentEnd - currentStart)
         }
 
-        currentStart = maxOf(c, start)
+        currentEnd = minOf(c, end)
+        currentStart = maxOf(b, start)
+
+        if(currentEnd >= b){
+            area += LinearAlgebra.trapezoidArea(
+                a = membership(currentEnd),
+                b = membership(currentStart),
+                h = currentEnd - currentStart)
+        }
         currentEnd = minOf(d, end)
+        currentStart = maxOf(c, start)
+
         if(currentEnd >= c){
-            area += (membership(currentEnd) + membership(currentStart)) * (currentEnd - currentStart) / 2.0
+            area += LinearAlgebra.trapezoidArea(
+                a = membership(currentEnd),
+                b = membership(currentStart),
+                h = currentEnd - currentStart)
         }
         return area
     }
+}
+
+fun main() {
+    val t = TrapezoidFuzzyNumber(1.0, 2.0, 3.0, 4.0)
+    val sum = t.subArea(3.5, 4.0)
+    println(sum)
 }

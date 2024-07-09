@@ -7,7 +7,6 @@ interface FuzzyNumber {
     fun membership(x: Double): Double
     fun subArea(start: Double, end: Double): Double
     fun totalArea(): Double
-
     fun getCoordinates(): List<Double>
     fun getPoints(): List<Point<Double>>
     fun getStart(): Double
