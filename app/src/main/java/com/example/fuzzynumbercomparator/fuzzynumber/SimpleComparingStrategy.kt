@@ -5,6 +5,12 @@ class SimpleComparingStrategy(
     val beta: Float = 1.0f,
 ) : ComparingStrategy {
     override fun compare(firstNumber: FuzzyNumber, secondNumber: FuzzyNumber): Double {
+
+        if(firstNumber.getStart() > secondNumber.getEnd())
+            return 1.0
+        if(firstNumber.getEnd() < secondNumber.getStart())
+            return 0.0
+
         val coordinates = LinearAlgebra.getIntersectionCoordinatesAndRange(firstNumber, secondNumber)
         var totalAreaFirstNumberGreater = 0.0
         var totalAreaSecondNumberGreater = 0.0
